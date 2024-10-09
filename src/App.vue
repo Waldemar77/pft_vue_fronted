@@ -11,9 +11,9 @@ export default {
 </script>
 
 <style>
-/* Add your global styles here */
 body {
   font-family: 'Arial', sans-serif;
+  font-size: 17px;
   color: rgb(244, 246, 248);
   margin: 0;
   padding: 0;

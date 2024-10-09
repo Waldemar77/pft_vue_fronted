@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
+import SignUp from '@/components/SignUp.vue';
 
 /* eslint-disable */
 const routes = [
@@ -8,7 +9,12 @@ const routes = [
     name: 'Login',
     component: Login
   },
-  // Add other routes here
+  {
+    path: '/signup',
+    name: 'SignUp',
+    component: SignUp
+  }
+  
 ];
 
 const router = createRouter({

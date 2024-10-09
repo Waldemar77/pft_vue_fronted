@@ -1,8 +1,10 @@
 <template>
     <div class="login-container">
       <div class="login-form">
-        <h2>Personal Finances Tracking</h2>
-        <h2>Login</h2>
+        <div class="header">
+          <img src="@/assets/pft_logo.png" alt="Logo" class="logo" />
+          <h3>Personal Finances Tracking</h3>
+        </div>
         <form @submit.prevent="handleLogin">
           <div class="input-group">
             <label for="email">Email</label>
@@ -12,7 +14,12 @@
             <label for="password">Password</label>
             <input type="password" v-model="password" required />
           </div>
-          <button type="submit">Login</button>
+          <div class="input-group">
+            <button type="submit">Login</button>
+          </div>
+          <div class="input-group">
+            <button @click="goToSignUp">Create an Account</button>
+          </div>
         </form>
       </div>
     </div>
@@ -21,6 +28,7 @@
   <script>
   /* eslint-disable */
   import axios from 'axios';
+  import { useRouter } from 'vue-router';
   
   export default {
     name: 'Login',
@@ -29,6 +37,15 @@
         email: '',
         password: ''
       };
+    },
+    setup() {
+      const router = useRouter();
+
+      const goToSignUp = () => {
+        router.push({ name: 'SignUp' });
+      };
+
+      return { goToSignUp };
     },
     methods: {
       async handleLogin() {
@@ -55,10 +72,20 @@
     align-items: center;
     height: 100vh;
   }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1em;
+  }
+  .logo {
+    width: 80px;
+    margin-right: 1em;
+  }
   .login-form {
     padding: 2em;
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(87, 244, 255, 0.39);
+    box-shadow: 0 2px 10px rgb(28, 221, 235);
     width: 300px;
   }
   .login-form h2 {
@@ -73,18 +100,24 @@
     margin-bottom: 0.5em;
   }
   .input-group input {
+    width: 95%;
+    padding: 0.5em;
+    border: 1px solid rgb(28, 221, 235);
+    border-radius: 4px;
+  }
+  .input-group button {
     width: 100%;
     padding: 0.5em;
-    border: 1px solid #1800f5;
+    border: 1px solid rgb(28, 221, 235);
     border-radius: 4px;
   }
   button {
     width: 100%;
-    padding: 0.75em;
+    padding: 0.5em;
     border: none;
     border-radius: 4px;
-    background-color: #258d2d;
-    color: white;
+    background-color: rgb(28, 221, 235);
+    color: black;
     font-size: 1em;
     cursor: pointer;
     transition: background-color 0.3s ease;
