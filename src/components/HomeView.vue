@@ -17,9 +17,9 @@
     data() {
       return {
         items: [
-          { name: 'Budget'},
-          { name: 'Movements'},
-          { name: 'Outcomes'}
+          { name: 'Budget', route: 'BudgetNew'},
+          { name: 'Movements', route: 'Home'},
+          { name: 'Outcomes', route: 'Home'}
         ],
         activeItem: 'Nearby'
       };
@@ -28,6 +28,9 @@
       selectItem(item) {
         this.activeItem = item.name;
         this.$emit('update', item.name);
+        if (item.route) {
+          this.$router.push({ name: item.route});
+        }
       }
     }
   };

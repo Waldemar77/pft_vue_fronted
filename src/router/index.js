@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
 import HomeView from '@/components/HomeView.vue';
+import BudgetCreate from '@/components/BudgetCreate.vue';
 
 /* eslint-disable */
 const routes = [
@@ -18,7 +19,14 @@ const routes = [
   {
     path: '/home',
     name: 'Home',
-    component: HomeView
+    component: HomeView,
+    meta: {title: 'General Summary'}
+  },
+  {
+    path: '/budgetNew',
+    name: 'BudgetNew',
+    component: BudgetCreate,
+    meta: {title: 'Create your Budget'}
   }
 ];
 
