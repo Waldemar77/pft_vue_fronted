@@ -21,6 +21,12 @@
             <button @click="goToSignUp">Create an Account</button>
           </div>
         </form>
+        <ErrorPopUp
+          v-if="showPopup"
+          :visible="showPopup"
+          :message="errorMessage"
+          @close="showPopup = false"
+        />
       </div>
     </div>
   </template>
@@ -29,13 +35,22 @@
   /* eslint-disable */
   import axios from 'axios';
   import { useRouter } from 'vue-router';
+  import ErrorPopUp from './ErrorPopUp.vue';
   
   export default {
     name: 'Login',
+    components: {
+      ErrorPopUp
+    },
     data() {
       return {
         email: '',
-        password: ''
+        password: '',
+        userData: [],
+        statusRq: '',
+        id_user: 0,
+        showPopup: false,
+        errorMessage: ""
       };
     },
     setup() {
@@ -54,7 +69,40 @@
             user_email: this.email,
             user_password: this.password
           });
-          // Handle successful login, e.g., save token, redirect, etc.
+          // Getting and saving user login data (user_id and email_user)
+          this.statusRq = JSON.stringify(response.data)[2]
+          this.userData = response.data;
+          this.id_user = this.userData['user_id'];
+          console.log(this.id_user)
+          console.log(this.statusRq)
+          
+          // checking if login is valid
+          if (this.statusRq == '0') {
+            // showing a popup about incorrect user
+            this.errorMessage = 'Email or password does not correct';
+            this.showPopup = true;
+          } else if (this.id_user > 0){
+            // saving user_id in sessionStorage to manage next pages
+            sessionStorage.setItem('user_id', this.id_user)
+
+            // checking if that user_id has any budget created, if it's true, render home page, otherwise, render new_budget page
+            try {
+              const response = await axios.get(`https://personal-finances-backend.onrender.com/budget/all_budget_user/${this.id_user}`)
+
+              if (response.data['budget_id'] > 0){
+                this.$router.push({ name: 'Home' });
+              } else {
+                this.$router.push({ name: 'BudgetNew' });
+              }
+            } catch(error){
+              console.error(error);
+            }
+          } else {
+            // showing a popup about incorrect user
+            this.errorMessage = 'Email or password does not correct';
+            this.showPopup = true;
+          }
+
           console.log(response.data);
         } catch (error) {
           // Handle error

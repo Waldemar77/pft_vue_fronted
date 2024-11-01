@@ -59,7 +59,7 @@
     name: 'BudgetView',
     data() {
       return {
-        years: [2024, 2025, 2026, 2027, 2028, 2029, 2030],
+        years: [2025, 2026, 2027, 2028, 2029, 2030],
         months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         selectedYear: new Date().getFullYear(),
         selectedMonth: new Date().toLocaleString('default', { month: 'long' }),
@@ -88,6 +88,7 @@
       },
       saveIncome() {
         // Logic to save the income budget
+        
         console.log('Saving income:', this.newIncome);
         this.resetForm('income');
         this.showIncomeForm = false;
