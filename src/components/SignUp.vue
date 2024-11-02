@@ -46,11 +46,21 @@
             <div class="input-group">
               <button @click="returnLogin">Return Login</button>
             </div>
-          <div v-if="showPopup" class="popup" :class="popupType">
-            <p>{{ popupMessage }}</p>
-            <button @click="closePopup">OK</button>
-          </div>
         </form>
+        <ErrorPopUp
+          v-if="showPopup"
+          :visible="showPopup"
+          :message="errorMessage"
+          @close="showPopup = false"
+        />
+        <SuccessPopUp
+          v-if="showPopupS"
+          :visible="showPopupS"
+          :message="successMessage"
+          :statusType="popupType"
+          :routeToMove="routeMove"
+          @close="showPopupS = false"
+        />
       </div>
     </div>
   </template>
@@ -59,9 +69,15 @@
   /* eslint-disable */
   import axios from 'axios';
   import { useRouter } from 'vue-router';
+  import ErrorPopUp from './ErrorPopUp.vue';
+  import SuccessPopUp from './SuccessPopUp.vue';
 
   export default {
     name: 'SignUp',
+    components: {
+      ErrorPopUp,
+      SuccessPopUp
+    },
     data() {
       return {
         email: '',
@@ -71,8 +87,11 @@
         occupation: '',
         location: '',
         showPopup: false,
-        popupMessage: '',
-        popupType: ''
+        popupType: '',
+        errorMessage: '',
+        showPopupS: false,
+        successMessage: '',
+        routeMove: ''
       };
     },
     setup() {
@@ -107,29 +126,24 @@
           });
           // Handle successful sign-up, e.g., save token, redirect, etc.
           if (response.data.slice(0, 3) == '[2]') {
-            this.popupMessage = 'This email already exists in our database.';
+            this.errorMessage = 'This email already exists in our database.';
             this.popupType = 'error';
             this.showPopup = true;
           } else if (response.data.slice(0, 3) == '[1]'){
-            this.popupMessage = 'Your account was created successful!';
+            this.successMessage = 'Your account was created successful!';
             this.popupType = 'success';
-            this.showPopup = true;
+            this.routeMove = 'Login';
+            this.showPopupS = true;
           }
           console.log(response.data);
         } catch (error) {
           // Handle error
-          this.popupMessage = 'Failed to create your account. Please try again.';
+          this.errorMessage = 'Failed to create your account. Please try again.';
           this.popupType = 'error';
           this.showPopup = true;
           console.error(error);
         }
       },
-      closePopup() {
-        this.showPopup = false;
-        if (this.popupType === 'success'){
-            this.$router.push({ name: 'Login'});
-        }
-      }
     }
   };
   </script>

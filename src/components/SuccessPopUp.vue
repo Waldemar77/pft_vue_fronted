@@ -1,6 +1,6 @@
 <template>
-    <div v-if="visible" class="popup">
-      <div class="popup-content">
+    <div v-if="visible" class="popupS">
+      <div class="popupS-content">
         <span class="close" @click="closePopup">&times;</span>
         <p>{{ message }}</p>
       </div>
@@ -17,29 +17,40 @@
       message: {
         type: String,
         required: true
+      },
+      statusType: {
+        type: String,
+        required: false
+      },
+      routeToMove: {
+        type: String,
+        required: false
       }
     },
     methods: {
       closePopup() {
-        this.$emit('close');
+        if (this.statusType == 'success'){
+            this.$emit('close');
+            this.$router.push({ name: this.routeToMove });
+        }
       }
     }
   };
   </script>
   
   <style>
-  .popup {
+  .popupS {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(249, 211, 211, 0.806);
+    background-color: rgba(186, 243, 196, 0.806);
     display: flex;
     justify-content: center;
     align-items: center;
   }
-  .popup-content {
+  .popupS-content {
     background-color: rgb(231, 228, 228);
     padding: 20px;
     border-radius: 5px;

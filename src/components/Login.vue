@@ -49,6 +49,7 @@
         userData: [],
         statusRq: '',
         id_user: 0,
+        budget_id: '0',
         showPopup: false,
         errorMessage: ""
       };
@@ -70,6 +71,7 @@
             user_password: this.password
           });
           // Getting and saving user login data (user_id and email_user)
+          console.log(response.data)
           this.statusRq = JSON.stringify(response.data)[2]
           this.userData = response.data;
           this.id_user = this.userData['user_id'];
@@ -89,11 +91,14 @@
             try {
               const response = await axios.get(`https://personal-finances-backend.onrender.com/budget/all_budget_user/${this.id_user}`)
 
-              if (response.data['budget_id'] > 0){
-                this.$router.push({ name: 'Home' });
-              } else {
+              try{
+                this.budget_id = response.data[0]['budget_id'];
+                if (parseInt(this.budget_id) > 0){
+                  this.$router.push({ name: 'Home' });
+                } 
+              } catch{
                 this.$router.push({ name: 'BudgetNew' });
-              }
+              } 
             } catch(error){
               console.error(error);
             }
