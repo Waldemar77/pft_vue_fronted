@@ -71,12 +71,12 @@
             user_password: this.password
           });
           // Getting and saving user login data (user_id and email_user)
-          console.log(response.data)
+          //console.log(response.data)
           this.statusRq = JSON.stringify(response.data)[2]
           this.userData = response.data;
           this.id_user = this.userData['user_id'];
-          console.log(this.id_user)
-          console.log(this.statusRq)
+          //console.log(this.id_user)
+          //console.log(this.statusRq)
           
           // checking if login is valid
           if (this.statusRq == '0') {

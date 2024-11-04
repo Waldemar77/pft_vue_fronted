@@ -88,9 +88,20 @@
       },
       saveIncome() {
         // Logic to save the income budget
-        
-        console.log('Saving income:', this.newIncome);
-        this.resetForm('income');
+        if (this.newIncome.category && this.newIncome.value) {
+          this.incomes.push({
+            category: this.newIncome.category,
+            value: this.newIncome.value,
+            description: this.newIncome.description
+          });
+          this.newIncome = {
+            category: '',
+            value: '',
+            description: ''
+          };
+        } else {
+          alert('Please fill in all fields.')
+        }
         this.showIncomeForm = false;
       },
       saveExpense() {
