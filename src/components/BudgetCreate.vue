@@ -20,12 +20,12 @@
     <!-- Incomes Panel -->
     <div class="expansion-panel">
       <div class="panel-header" @click="togglePanel('incomes')">
-        <h4>Incomes</h4>
+        <h4 class="h4-title">Incomes (Total: {{ totalIncomes }})</h4>
       </div>
       <div class="panel-content" v-show="panels.incomes">
         <div v-for="(sum, category) in incomeSums" :key="category" class="category-panel">
-          <div class="panel-header" @click="toggleCategory(category)">
-            <h4>{{ category }}: {{ sum }}</h4>
+          <div class="panel-header2" @click="toggleCategory(category)">
+            <h5 class="h5-title">{{ category }}: {{ sum }}</h5>
           </div>
           <div class="panel-content" v-show="categoryStates[category]">
             <div v-for="(budget, index) in incomes.filter(b => b.category === category)" :key="index">
@@ -49,12 +49,12 @@
     <!-- Expenses Panel -->
     <div class="expansion-panel">
       <div class="panel-header" @click="togglePanel('expenses')">
-        <h4>Expenses</h4>
+        <h4>Expenses (Total: {{ totalExpenses }})</h4>
       </div>
       <div class="panel-content" v-show="panels.expenses">
         <div v-for="(sum, category) in expenseSums" :key="category" class="category-panel">
-          <div class="panel-header" @click="toggleCategory(category)">
-            <h4>{{ category }}: {{ sum }}</h4>
+          <div class="panel-header2" @click="toggleCategory(category)">
+            <h5 class="h5-title">{{ category }}: {{ sum }}</h5>
           </div>
           <div class="panel-content" v-show="categoryStates[category]">
             <div v-for="(budget, index) in expenses.filter(b => b.category === category)" :key="index">
@@ -121,6 +121,12 @@ export default {
     },
     expenseSums() {
       return this.calculateSums(this.expenses);
+    },
+    totalIncomes() {
+      return this.calculateTotal(this.incomes);
+    },
+    totalExpenses() {
+      return this.calculateTotal(this.expenses);
     }
   },
   methods: {
@@ -161,6 +167,9 @@ export default {
         sums[budget.category] = (sums[budget.category] || 0) + parseInt(budget.value);
         return sums;
       }, {});
+    },
+    calculateTotal(budgets) {
+      return budgets.reduce((total, budget) => total + parseInt(budget.value), 0);
     }
   }
 };
@@ -181,12 +190,23 @@ export default {
 .selectors {
   display: flex;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
 }
 
 .selectors select {
   padding: 5px;
   font-size: 16px;
+}
+
+.h5-title {
+  height: auto;
+  padding: 5px;
+  margin: 5px;
+  margin-bottom: 10px;
+}
+
+.h4-title {
+  height: auto;
 }
 
 .expansion-panel {
@@ -197,19 +217,36 @@ export default {
 }
 
 .panel-header {
-  padding: 5px;
+  padding-left: 20px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  height: auto;
   color: rgb(255, 255, 255);
   background-color: rgb(15, 9, 68);
+  cursor: pointer;
+  text-align: left;
+}
+
+.panel-header2 {
+  padding-left: 20px;
+  height: auto;
+  color: black;
+  background-color: rgb(156, 245, 163);
   cursor: pointer;
 }
 
 .category-panel {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .panel-content {
-  padding: 10px;
+  padding-top: 5px;
+  padding-left: 10px;
+  padding-bottom: 5px;
+  padding-right: 5px;
+  height: fit-content;
   background-color: rgb(165, 177, 218);
+  color: black;
 }
 
 .form {
