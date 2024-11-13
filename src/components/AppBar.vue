@@ -5,6 +5,7 @@
         <span>{{ title }}</span>
       </div>
       <div v-if="menuVisible" class="menu">
+        <a class="closeX" @click="closeMenu()">x</a>
         <a @click="navigateTo('Profile')">Profile</a>
         <a @click="navigateTo('About')">About</a>
         <a @click="navigateTo('Tutorial')">Tutorial</a>
@@ -36,6 +37,9 @@
         this.menuVisible = false;
         this.$router.push({ name: routeName });
       },
+      closeMenu() {
+        this.menuVisible = false;
+      },
       exitApp() {
         this.menuVisible = false;
         sessionStorage.clear();
@@ -58,11 +62,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    /*text-align: center;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;*/
   }
   
   .left-section {
@@ -77,13 +76,17 @@
     cursor: pointer;
     margin-right: 10px;
   }
+  .closeX {
+    background-color: rgb(180, 109, 109);
+    text-align: center;
+  }
   .menu {
     position: absolute;
     top: 50px;
     left: 10px;
     background-color: rgb(15, 9, 68);
     border: 1px solid rgb(28, 221, 235);
-    box-shadow: 0 4px 8px rgba(180, 178, 178, 0.822);
+    box-shadow: 0 4px 8px rgb(28, 221, 235);
   }
   .menu a {
     display: block;
@@ -93,7 +96,7 @@
     cursor: pointer;
   }
   .menu a:hover {
-    background-color: rgba(180, 178, 178, 0.822);
+    background-color: rgb(28, 221, 235);
   }
 
   .app-bar h1 {

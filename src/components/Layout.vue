@@ -1,8 +1,8 @@
 <template>
     <div class="layout">
       <AppBar v-if="showAppBar" />
-      <router-view />
-      <BottomNavigation v-if="showBottomNavigation" />
+      <router-view @panel-toggle="handlePanelToggle" />
+      <BottomNavigation v-if="showBottomBar" />
     </div>
   </template>
   
@@ -13,6 +13,13 @@
   
   export default {
     name: 'Layout',
+    data() {
+      return {
+        showBottomBar: true,
+        incomePanelExpanded: false,
+        expensePanelExpanded: false,
+      }
+    },
     components: {
       AppBar,
       BottomNavigation
@@ -20,9 +27,21 @@
     computed: {
       showAppBar() {
         return this.$route.name !== 'Login' && this.$route.name !== 'SignUp';
-      },
-      showBottomNavigation() {
-        return this.$route.name !== 'Login' && this.$route.name !== 'SignUp';
+      }
+    },
+    methods: {
+      handlePanelToggle({ panel, expanded }) {
+        if (panel === 'incomes') {
+          this.incomePanelExpanded = expanded;
+        } else if (panel === 'expenses') {
+          this.expensePanelExpanded = expanded;
+        }
+        // setting visibility of BottomBarNavigation
+        if (this.incomePanelExpanded==true || this.expensePanelExpanded==true){
+          this.showBottomBar = false  
+        } else if (this.incomePanelExpanded==false && this.expensePanelExpanded==false) {
+          this.showBottomBar = true
+        }
       }
     }
   };

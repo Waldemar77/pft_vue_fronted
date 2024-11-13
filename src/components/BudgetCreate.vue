@@ -34,7 +34,7 @@
           </div>
         </div>
         <!-- Button to Add New Budget -->
-        <button @click="showIncomeForm = !showIncomeForm">Add New Budget</button>
+        <button @click="showIncomeForm = !showIncomeForm">Add New Income</button>
         <div v-if="showIncomeForm" class="form">
           <select v-model="newIncome.category">
             <option v-for="category in incomeCategories" :key="category" :value="category">{{ category }}</option>
@@ -74,10 +74,14 @@
         </div>
       </div>
     </div>
+    <div>
+      <button @click="saveBudget"> Save Budget </button>
+    </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable */
 export default {
   name: 'BudgetView',
   data() {
@@ -87,19 +91,19 @@ export default {
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
       ],
-      selectedYear: new Date().getFullYear(),
-      selectedMonth: new Date().toLocaleString('default', { month: 'long' }),
+      selectedYear: '',
+      selectedMonth: '',
       panels: {
         incomes: false,
         expenses: false
       },
       showIncomeForm: false,
       showExpenseForm: false,
-      incomeCategories: ['Salary', 'Rent', 'Investment', 'Other'],
-      expenseCategories: [
-        'Rent', 'Alimentation', 'Health', 'Services', 'Transportation',
-        'Education', 'Pets', 'Entertainment', 'Other', 'Loan Payments'
-      ],
+      incomeCategories: {1:'Salary', 2:'Rent', 3:'Investment', 4:'Other'},
+      expenseCategories: {
+        7:'Rent', 8:'Alimentation', 9:'Health', 10:'Services', 11:'Transportation',
+        12:'Education', 13:'Pets', 14:'Entertainment', 15:'Other', 16:'Loan Payments'
+      },
       newIncome: {
         category: '',
         value: '',
@@ -112,7 +116,10 @@ export default {
       },
       incomes: [],
       expenses: [],
-      categoryStates: {}
+      categoryStates: {},
+      user_id_SS: '',
+      period_budget: '',
+      json_to_save: []
     };
   },
   computed: {
@@ -132,6 +139,7 @@ export default {
   methods: {
     togglePanel(panel) {
       this.panels[panel] = !this.panels[panel];
+      this.$emit('panel-toggle', { panel, expanded: this.panels[panel] });
     },
     toggleCategory(category) {
       this.categoryStates[category] = !this.categoryStates[category];
@@ -170,6 +178,49 @@ export default {
     },
     calculateTotal(budgets) {
       return budgets.reduce((total, budget) => total + parseInt(budget.value), 0);
+    },
+    saveBudget(){
+      // setting period (yyyy-MM)
+      this.period_budget = this.selectedYear + "-" + this.selectedMonth
+      console.log(`period: ${this.period_budget}`)
+
+      // saving user_id:
+      this.user_id_SS = sessionStorage.getItem('user_id')
+
+      // identity category id for incomes
+      this.incomes.map(record => {
+        for (const [key, value] of Object.entries(this.incomeCategories)) {
+          if (value === record.category) {
+            this.json_to_save.push({
+              user_id: this.user_id_SS,
+              mov_catg_id: key,
+              budget_period: this.period_budget,
+              budget_value: record.value,
+              budget_description: record.description,
+              period_is_open: 'Si',
+              record_date: ''
+            })
+          }
+        }
+      })
+
+      // identify category id for expenses
+      this.expenses.map(record => {
+        for (const [key, value] of Object.entries(this.expenseCategories)) {
+          if (value === record.category) {
+            //this.category_id.push(key)
+          }
+        }
+      })
+
+      this.json_to_save.forEach(record => {
+        console.log(`id list: ${JSON.stringify(record)}`)
+      })
+      
+      // creating json format for each budget record
+      this.incomes.forEach(element => {
+
+      })
     }
   }
 };
