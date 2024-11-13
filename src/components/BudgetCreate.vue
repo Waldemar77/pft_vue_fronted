@@ -87,10 +87,10 @@ export default {
   data() {
     return {
       years: [2025, 2026, 2027, 2028, 2029, 2030],
-      months: [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ],
+      months: {
+        1:'January', 2:'February', 3:'March', 4:'April', 5:'May', 6:'June',
+        7:'July', 8:'August', 9:'September', 10:'October', 11:'November', 12:'December'
+    },
       selectedYear: '',
       selectedMonth: '',
       panels: {
@@ -118,6 +118,7 @@ export default {
       expenses: [],
       categoryStates: {},
       user_id_SS: '',
+      month_budget: '',
       period_budget: '',
       json_to_save: []
     };
@@ -181,13 +182,22 @@ export default {
     },
     saveBudget(){
       // setting period (yyyy-MM)
-      this.period_budget = this.selectedYear + "-" + this.selectedMonth
+      for (const [key, value] of Object.entries(this.months)) {
+        if (value === this.selectedMonth){
+          if (key >= 10) {
+            this.month_budget = key;  
+          } else {
+            this.month_budget = '0' + key;  
+          }
+        }
+      }
+      this.period_budget = this.selectedYear + "-" + this.month_budget
       console.log(`period: ${this.period_budget}`)
 
       // saving user_id:
       this.user_id_SS = sessionStorage.getItem('user_id')
 
-      // identity category id for incomes
+      // identity category id for incomes and creating JSON
       this.incomes.map(record => {
         for (const [key, value] of Object.entries(this.incomeCategories)) {
           if (value === record.category) {
@@ -204,23 +214,30 @@ export default {
         }
       })
 
-      // identify category id for expenses
+      // identify category id for expenses and creating JSON
       this.expenses.map(record => {
         for (const [key, value] of Object.entries(this.expenseCategories)) {
           if (value === record.category) {
-            //this.category_id.push(key)
+            this.json_to_save.push({
+              user_id: this.user_id_SS,
+              mov_catg_id: key,
+              budget_period: this.period_budget,
+              budget_value: record.value,
+              budget_description: record.description,
+              period_is_open: 'Si',
+              record_date: ''
+            })
           }
         }
       })
+
+      // saving record in database
+
 
       this.json_to_save.forEach(record => {
         console.log(`id list: ${JSON.stringify(record)}`)
       })
       
-      // creating json format for each budget record
-      this.incomes.forEach(element => {
-
-      })
     }
   }
 };
