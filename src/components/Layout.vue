@@ -2,7 +2,7 @@
     <div class="layout">
       <AppBar v-if="showAppBar" />
       <router-view @panel-toggle="handlePanelToggle" />
-      <BottomNavigation v-if="showBottomBar" />
+      <BottomNavigation v-if="showBottomBarDef"/>
     </div>
   </template>
   
@@ -15,7 +15,7 @@
     name: 'Layout',
     data() {
       return {
-        showBottomBar: true,
+        showBottomBar: false,
         incomePanelExpanded: false,
         expensePanelExpanded: false,
       }
@@ -27,6 +27,13 @@
     computed: {
       showAppBar() {
         return this.$route.name !== 'Login' && this.$route.name !== 'SignUp';
+      },
+
+      showBottomBarDef() {
+        if (this.$route.name !== 'Login' && this.$route.name !== 'SignUp') {
+          this.showBottomBar = true;
+        }
+        return this.showBottomBar
       }
     },
     methods: {
@@ -41,7 +48,7 @@
           this.showBottomBar = false  
         } else if (this.incomePanelExpanded==false && this.expensePanelExpanded==false) {
           this.showBottomBar = true
-        }
+        } 
       }
     }
   };

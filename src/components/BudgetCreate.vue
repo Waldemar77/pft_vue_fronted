@@ -77,10 +77,28 @@
     <div>
       <button @click="saveBudget"> Save Budget </button>
     </div>
+    <ErrorPopUp
+      v-if="showPopup"
+      :visible="showPopup"
+      :message="errorMessage"
+      @close="showPopup = false"
+    />
+    <SuccessPopUp
+      v-if="showPopupS"
+      :visible="showPopupS"
+      :message="successMessage"
+      :statusType="popupType"
+      :routeToMove="routeMove"
+      @close="showPopupS = false"
+    />
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+import ErrorPopUp from './ErrorPopUp.vue';
+import SuccessPopUp from './SuccessPopUp.vue';
+
 /* eslint-disable */
 export default {
   name: 'BudgetView',
@@ -120,8 +138,19 @@ export default {
       user_id_SS: '',
       month_budget: '',
       period_budget: '',
-      json_to_save: []
+      json_to_save: [],
+      json_response: '',
+
+      showPopup: false,
+      popupType: '',
+      errorMessage: '',
+      showPopupS: false,
+      successMessage: '',
     };
+  },
+  components: {
+    ErrorPopUp,
+    SuccessPopUp
   },
   computed: {
     incomeSums() {
@@ -180,7 +209,7 @@ export default {
     calculateTotal(budgets) {
       return budgets.reduce((total, budget) => total + parseInt(budget.value), 0);
     },
-    saveBudget(){
+    async saveBudget(){
       // setting period (yyyy-MM)
       for (const [key, value] of Object.entries(this.months)) {
         if (value === this.selectedMonth){
@@ -192,7 +221,6 @@ export default {
         }
       }
       this.period_budget = this.selectedYear + "-" + this.month_budget
-      console.log(`period: ${this.period_budget}`)
 
       // saving user_id:
       this.user_id_SS = sessionStorage.getItem('user_id')
@@ -232,19 +260,34 @@ export default {
       })
 
       // saving record in database
-
-
-      this.json_to_save.forEach(record => {
-        console.log(`id list: ${JSON.stringify(record)}`)
-      })
-      
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/budget/saving_budget/', this.json_to_save)
+        
+        // getting response confirmation
+        console.log(JSON.stringify(response.data))
+        // Handle successful sign-up, e.g., save token, redirect, etc.
+        if (response.data.slice(0, 3) == '[1]') {
+            this.errorMessage = `Your budget for period ${this.period_budget} has been saved successfully`;
+            this.popupType = 'success';
+            this.showPopupS = true;
+          } else if (response.data.slice(0, 3) == '[0]'){
+            this.successMessage = `:( Something wrong happened, we could not save your budget for period ${this.period_budget}. Try later.`;
+            this.popupType = 'error';
+            this.showPopup = true;
+          }
+          console.log(response.data);
+      } catch (error) {
+        this.errorMessage = 'Failed to create your budget. Please try again.';
+        this.popupType = 'error';
+        this.showPopup = true;
+        console.error(error);
+      }      
     }
   }
 };
 </script>
 
 <style scoped>
-/* Your existing styles */
 .budget-view {
   padding: 20px;
 }
