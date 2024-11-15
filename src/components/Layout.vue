@@ -2,7 +2,7 @@
     <div class="layout">
       <AppBar v-if="showAppBar" />
       <router-view @panel-toggle="handlePanelToggle" />
-      <BottomNavigation v-if="showBottomBarDef"/>
+      <BottomNavigation v-if="showBottomBar"/>
     </div>
   </template>
   
@@ -30,10 +30,8 @@
       },
 
       showBottomBarDef() {
-        if (this.$route.name !== 'Login' && this.$route.name !== 'SignUp') {
-          this.showBottomBar = true;
-        }
-        return this.showBottomBar
+        this.showBottomBar = this.$route.name !== 'Login' && this.$route.name !== 'SignUp';
+        return this.showBottomBar;
       }
     },
     methods: {
@@ -43,12 +41,27 @@
         } else if (panel === 'expenses') {
           this.expensePanelExpanded = expanded;
         }
+        console.log(`panel: ${panel} is extended?: ${expanded}`)
         // setting visibility of BottomBarNavigation
         if (this.incomePanelExpanded==true || this.expensePanelExpanded==true){
           this.showBottomBar = false  
         } else if (this.incomePanelExpanded==false && this.expensePanelExpanded==false) {
           this.showBottomBar = true
         } 
+      }
+    },
+    watch: {
+    $route(to, from) {
+      // Update the bottom bar visibility when the route changes
+      this.showBottomBar = this.$route.name !== 'Login' && this.$route.name !== 'SignUp' && !this.incomePanelExpanded && !this.expensePanelExpanded;
+      },
+      incomePanelExpanded(val) {
+      // Update the bottom bar visibility when income panel expands or collapses
+      this.showBottomBar = this.$route.name !== 'Login' && this.$route.name !== 'SignUp' && !val && !this.expensePanelExpanded;
+      },
+      expensePanelExpanded(val) {
+        // Update the bottom bar visibility when expense panel expands or collapses
+        this.showBottomBar = this.$route.name !== 'Login' && this.$route.name !== 'SignUp' && !val && !this.incomePanelExpanded;
       }
     }
   };

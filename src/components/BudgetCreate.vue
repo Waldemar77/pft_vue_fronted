@@ -267,11 +267,11 @@ export default {
         console.log(JSON.stringify(response.data))
         // Handle successful sign-up, e.g., save token, redirect, etc.
         if (response.data.slice(0, 3) == '[1]') {
-            this.errorMessage = `Your budget for period ${this.period_budget} has been saved successfully`;
+            this.successMessage = `Your budget for period ${this.period_budget} has been saved successfully`;
             this.popupType = 'success';
             this.showPopupS = true;
           } else if (response.data.slice(0, 3) == '[0]'){
-            this.successMessage = `:( Something wrong happened, we could not save your budget for period ${this.period_budget}. Try later.`;
+            this.errorMessage = `:( Something wrong happened, we could not save your budget for period ${this.period_budget}. Try later.`;
             this.popupType = 'error';
             this.showPopup = true;
           }
