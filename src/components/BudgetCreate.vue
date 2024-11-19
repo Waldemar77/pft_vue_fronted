@@ -146,6 +146,7 @@ export default {
       errorMessage: '',
       showPopupS: false,
       successMessage: '',
+      routeMove: ''
     };
   },
   components: {
@@ -269,6 +270,7 @@ export default {
         if (response.data.slice(0, 3) == '[1]') {
             this.successMessage = `Your budget for period ${this.period_budget} has been saved successfully`;
             this.popupType = 'success';
+            this.routeMove = 'Home';
             this.showPopupS = true;
           } else if (response.data.slice(0, 3) == '[0]'){
             this.errorMessage = `:( Something wrong happened, we could not save your budget for period ${this.period_budget}. Try later.`;

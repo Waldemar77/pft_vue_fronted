@@ -49,6 +49,7 @@
         userData: [],
         statusRq: '',
         id_user: 0,
+        user_token: 0,
         budget_id: '0',
         showPopup: false,
         errorMessage: ""
@@ -85,7 +86,9 @@
             this.showPopup = true;
           } else if (this.id_user > 0){
             // saving user_id in sessionStorage to manage next pages
-            sessionStorage.setItem('user_id', this.id_user)
+            this.user_token = this.randomToken(20);
+            sessionStorage.setItem('user_id', this.id_user);
+            sessionStorage.setItem('authToken', this.user_token);
 
             // checking if that user_id has any budget created, if it's true, render home page, otherwise, render new_budget page
             try {
@@ -113,6 +116,15 @@
           // Handle error
           console.error(error);
         }
+      },
+      randomToken(lenToken) {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let randomString = '';
+        for (let i = 0; i < lenToken; i++) {
+          const randomIndex = Math.floor(Math.random() * charset.length);
+          randomString += charset[randomIndex];
+        }
+        return randomString;
       }
     }
   };

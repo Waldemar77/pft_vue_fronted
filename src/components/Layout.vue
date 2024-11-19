@@ -9,7 +9,7 @@
   <script>
   /* eslint-disable */
   import AppBar from './AppBar.vue';
-  import BottomNavigation from './HomeView.vue';
+  import BottomNavigation from './BottomBar.vue';
   
   export default {
     name: 'Layout',
@@ -41,7 +41,7 @@
         } else if (panel === 'expenses') {
           this.expensePanelExpanded = expanded;
         }
-        console.log(`panel: ${panel} is extended?: ${expanded}`)
+        // console.log(`panel: ${panel} is extended?: ${expanded}`)
         // setting visibility of BottomBarNavigation
         if (this.incomePanelExpanded==true || this.expensePanelExpanded==true){
           this.showBottomBar = false  

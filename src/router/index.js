@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
-import HomeView from '@/components/HomeView.vue';
+import HomeView from '@/components/HomeMain.vue';
 import BudgetCreate from '@/components/BudgetCreate.vue';
 
 /* eslint-disable */
@@ -33,6 +33,20 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+});
+
+// cheking if user has authenticated
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!sessionStorage.getItem('authToken'); 
+
+  if (to.name !== 'Login' && to.name !== 'SignUp' && !isAuthenticated) {
+    next({ name: 'Login' });
+  } else if (from.name !== 'Login' && from.name !== 'SignUp' && to.name == 'Login') {
+    sessionStorage.clear();
+    next();
+  } else {
+    next();
+  }
 });
 
 export default router;
