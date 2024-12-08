@@ -23,30 +23,30 @@ export default {
     this.renderChart();
   },
   watch: {
-    data: {
+    'data.labels': {
       handler() {
         this.renderChart();
-      },
-      deep: true
+      }
     },
-    options: {
+    'data.datasets': {
       handler() {
         this.renderChart();
-      },
-      deep: true
+      }
     }
   },
   methods: {
     renderChart() {
-      if (this.chart) {
-        this.chart.destroy();
-      }
+    if (!this.chart) {
       this.chart = new Chart(this.$refs.canvas, {
         type: 'bar',
         data: this.data,
         options: this.options
       });
+    } else {
+      this.chart.data = this.data;
+      this.chart.update();
     }
+  }
   }
 };
 </script>
@@ -55,5 +55,6 @@ export default {
 canvas {
   width: 100% !important;
   height: auto !important;
+  background-color: azure;
 }
 </style>

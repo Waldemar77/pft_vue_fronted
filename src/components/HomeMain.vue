@@ -96,7 +96,7 @@ export default {
       };
     }
   },
-  created() {
+  mounted() {
     this.getActivePeriod();
   },
   methods: {
@@ -290,9 +290,10 @@ export default {
 }
 
 .chart-container {
-  border: 1px solid rgb(69, 240, 252); /* Highlighting the chart area */
-  padding: 20px;
-  height: 300px; /* Adjust the height as needed */
+  padding: 40px;
+  height: 50vh; 
+  max-width: 800px; /* or any other value */
+  margin: 0 auto; /* center the chart */
 }
 
 </style>
