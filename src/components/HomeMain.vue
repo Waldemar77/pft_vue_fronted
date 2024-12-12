@@ -15,7 +15,7 @@
         </div>
         <div class="budget-item" @click="showChart('expenses')">
           <div class="budget-label">Expenses: {{ expenses }}</div>
-          <div class="budget-bar">
+          <div class="budget-bar-exp">
             <div class="budget-fill expenses" :style="expensesFillStyle"></div>
           </div>
         </div>
@@ -55,17 +55,26 @@ export default {
       },
       allBudget: [],
       incomesBudgetCat: {},
+      incomesMovCat: {},
+      expensesBudgetCat: {},
+      expensesMovCat: {},
+      incomesBudgetCatSort: {},
+      incomesMovCatSort: {},
+      expensesBudgetCatSort: {},
+      expensesMovCatSort: {},
       incomeCategories: {1:'Salary', 2:'Rent', 3:'Investment', 4:'Other'},
       expenseCategories: {
-        7:'Rent', 8:'Alimentation', 9:'Health', 10:'Services', 11:'Transportation',
-        12:'Education', 13:'Pets', 14:'Entertainment', 15:'Other', 16:'Loan Payments'
+        7:'Rent', 8:'Alimentation', 9:'Health', 10:'Services', 11:'Transportation', 12:'Education', 13:'Pets', 14:'Entertainment', 15:'Other', 16:'Loan Payments'
       },
-      incomes: 6000000, // Example incomes value
+      allCategories: {
+        1:'Salary', 2:'Rent', 3:'Investment', 4:'Other', 7:'Rent', 8:'Alimentation', 9:'Health', 10:'Services', 11:'Transportation', 12:'Education', 13:'Pets', 14:'Entertainment', 15:'Other', 16:'Loan Payments'
+      },
+      incomes: 0,
       incomesBudget: 0, 
-      expenses: 400, // Example expenses value
-      expensesBudget: 800, // Example expenses budget value,
-      markUp: 200, // Example mark up value
-      incomesExecution: { 'Salary': 5000000, 'Rent': 500000, 'Investment': 300000, 'Other': 200000 },
+      expenses: 0,
+      expensesBudget: 0,
+      markUp: 0,
+      incomesExecution: { 'Salary': 2000000, 'Rent': 500000, 'Investment': 300000, 'Other': 200000 },
       expensesExecution: { 'Rent': 200, 'Alimentation': 100, 'Health': 50, 'Services': 50 },
       chartData: null,
       chartOptions: {
@@ -73,10 +82,10 @@ export default {
         maintainAspectRatio: false,
         scales: {
           x: {
-            stacked: true,
+
           },
           y: {
-            stacked: true,
+            beginAtZero: true
           }
         }
       }
@@ -119,42 +128,89 @@ export default {
         //console.log(`currentPeriod: ${this.currentPeriod}`)
 
         // getting budget movements
-        this.getBudget(this.budgetPeriod)
+        this.getBudgetAndMov(this.budgetPeriod)
       } catch(error){
         console.error(error);
       }
     },
 
-    // getting budget for the current period
-    async getBudget(periodBudget) {
+    // getting budget and movements for the current period
+    async getBudgetAndMov(periodBudget) {
       try {
+        // getting budget data
         const response = await axios.get(`http://127.0.0.1:8000/budget/budget_user_period/${this.id_user}/${periodBudget}`)
 
         this.allBudget = response.data;
         
         this.allBudget.forEach(element => {
-          for (const [key, value] of Object.entries(this.incomeCategories)){
-            if (key == element['mov_catg_id']){
+          for (const [key, value] of Object.entries(this.allCategories)){
+            if (key == element['mov_catg_id'] && key <= 4){
+              // setting incomes budget data
               this.incomesBudgetCat[value] = element['budget_value'] 
               this.incomesBudget += parseInt(element['budget_value'])
+            } else if(key == element['mov_catg_id'] && key > 4) {
+              // setting expenses budget data
+              this.expensesBudgetCat[value] = element['budget_value'] 
+              this.expensesBudget += parseInt(element['budget_value'])
             }
           }
         });
-        console.log(`incomesBugCat: ${Object.keys(this.incomesBudgetCat)}`)
-        console.log(`incomesBugCat: ${JSON.stringify(this.incomesBudgetCat)}`)
 
+        // getting movements data
+        const response_mov = await axios.get(`http://127.0.0.1:8000/mov/mov_user_period/${this.id_user}/${periodBudget}`)
+
+        this.allMovements = response_mov.data;
+        
+        // setting incomes movement data
+        this.allMovements.forEach(element => {
+          for (const [key, value] of Object.entries(this.allCategories)){
+            if (key == element['mov_catg_id'] && key <= 4){
+              // setting incomes budget data
+              this.incomesMovCat[value] = element['mov_value'] 
+              this.incomes += parseInt(element['mov_value'])
+            } else if(key == element['mov_catg_id'] && key > 4) {
+              // setting expenses budget data
+              this.expensesMovCat[value] = element['mov_value'] 
+              this.expenses += parseInt(element['mov_value'])
+            }
+          }
+        });
+        
+        // sorting budget and movements objetcs
+        for (const key of Object.values(this.allCategories)) {
+          if (key in this.incomesBudgetCat){
+            this.incomesBudgetCatSort[key] = this.incomesBudgetCat[key]
+          }
+        }
+        for (const key of Object.values(this.allCategories)) {
+          if (key in this.expensesBudgetCat){
+            this.expensesBudgetCatSort[key] = this.expensesBudgetCat[key]
+          }
+        }
+        for (const key of Object.values(this.allCategories)) {
+          if (key in this.incomesMovCat){
+            this.incomesMovCatSort[key] = this.incomesMovCat[key]
+          }
+        }
+        for (const key of Object.values(this.allCategories)) {
+          if (key in this.expensesMovCat){
+            this.expensesBudgetCatSort[key] = this.expensesMovCat[key]
+          }
+        }
+
+        // setting data for bar chart
         this.chartData = {
-          labels: Object.keys(incomesBudgetCat),
+          labels: Object.values(this.incomeCategories),
           datasets: [
             {
               label: 'Budget',
               backgroundColor: '#87CEFA',
-              data: Object.values(incomesBudgetCat)
+              data: Object.keys(this.incomesBudgetCatSort).map(cat => this.incomesBudgetCatSort[cat] || 0)
             },
             {
               label: 'Execution',
               backgroundColor: '#000080',
-              data: Object.keys(incomesBudgetCat).map(cat => this.incomesExecution[cat] || 0)
+              data: Object.keys(this.incomesMovCatSort).map(cat => this.incomesMovCatSort[cat] || 0)
             }
           ]
         };
@@ -162,10 +218,6 @@ export default {
       } catch(error){
         console.error(error);
       }
-    },
-    
-    toggleSidebar() {
-      // Logic to toggle the sidebar
     },
 
     showChart(type) {
@@ -175,38 +227,33 @@ export default {
       };
       if (type === 'incomes') {
         data = {
-          labels: Object.keys(this.incomesBudgetCat),
+          labels: Object.values(this.incomeCategories),
           datasets: [
             {
               label: 'Budget',
               backgroundColor: '#87CEFA',
-              data: Object.values(this.incomesBudgetCat)
+              data: Object.values(this.incomesBudgetCatSort)
             },
             {
               label: 'Execution',
               backgroundColor: '#000080',
-              data: Object.keys(this.incomesBudgetCat).map(cat => this.incomesExecution[cat] || 0)
+              data: Object.keys(this.incomesMovCatSort).map(cat => this.incomesMovCatSort[cat] || 0)
             }
           ]
         };
       } else if (type === 'expenses') {
-        const expensesBudgetCat = Object.keys(this.expenseCategories).reduce((acc, cat) => {
-          acc[this.expenseCategories[cat]] = Math.floor(Math.random() * 100); // Placeholder data
-          return acc;
-        }, {});
-
         data = {
-          labels: Object.keys(this.expenseCategories).map(cat => this.expenseCategories[cat]),
+          labels: Object.values(this.expenseCategories),
           datasets: [
             {
               label: 'Budget',
               backgroundColor: '#FFECB3',
-              data: Object.values(expensesBudgetCat)
+              data: Object.values(this.expensesBudgetCatSort)
             },
             {
               label: 'Execution',
-              backgroundColor: '#800000',
-              data: Object.keys(this.expenseCategories).map(cat => this.expensesExecution[cat] || 0)
+              backgroundColor: '#885407',
+              data: Object.keys(this.expensesBudgetCatSort).map(cat => this.expensesMovCatSort[cat] || 0)
             }
           ]
         };
@@ -269,7 +316,15 @@ export default {
 .budget-bar {
   width: 60%;
   height: 30px;
-  background-color: #f0f0f0;
+  background-color: #87ceeb;
+  border: 1px solid #000;
+  position: relative;
+}
+
+.budget-bar-exp {
+  width: 60%;
+  height: 30px;
+  background-color: #ffebcd;
   border: 1px solid #000;
   position: relative;
 }
@@ -282,11 +337,11 @@ export default {
 }
 
 .incomes {
-  background-color: #87ceeb; /* Light blue */
+  background-color: #000080;
 }
 
 .expenses {
-  background-color: #ffebcd; /* Blanched almond */
+  background-color: #885407;
 }
 
 .chart-container {
