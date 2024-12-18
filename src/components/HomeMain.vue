@@ -74,16 +74,13 @@ export default {
       expenses: 0,
       expensesBudget: 0,
       markUp: 0,
-      incomesExecution: { 'Salary': 2000000, 'Rent': 500000, 'Investment': 300000, 'Other': 200000 },
-      expensesExecution: { 'Rent': 200, 'Alimentation': 100, 'Health': 50, 'Services': 50 },
       chartData: null,
       chartOptions: {
         responsive: true,
+        indexAxis: 'x',
         maintainAspectRatio: false,
         scales: {
-          x: {
-
-          },
+          x: {},
           y: {
             beginAtZero: true
           }
@@ -94,15 +91,29 @@ export default {
   computed: {
     incomesFillStyle() {
       const percentage = (this.incomes / this.incomesBudget) * 100;
-      return {
-        width: `${percentage}%`
-      };
+      if (percentage >= 100){
+        return {
+          width: '100%',
+          backgroundColor: '#95ff3e' 
+        };
+      } else {
+        return {
+          width: `${percentage}%`
+        };
+      }
     },
     expensesFillStyle() {
       const percentage = (this.expenses / this.expensesBudget) * 100;
-      return {
-        width: `${percentage}%`
-      };
+      if (percentage >= 100){
+        return {
+          width: '100%',
+          backgroundColor: '#f56464' 
+        };
+      } else {
+        return {
+          width: `${percentage}%`
+        };
+      }
     }
   },
   mounted() {
@@ -126,6 +137,8 @@ export default {
           }
         }
         //console.log(`currentPeriod: ${this.currentPeriod}`)
+        //saving current period in SessionStorage
+        sessionStorage.setItem('activePeriod', this.currentPeriod)
 
         // getting budget movements
         this.getBudgetAndMov(this.budgetPeriod)
@@ -145,13 +158,25 @@ export default {
         this.allBudget.forEach(element => {
           for (const [key, value] of Object.entries(this.allCategories)){
             if (key == element['mov_catg_id'] && key <= 4){
-              // setting incomes budget data
-              this.incomesBudgetCat[value] = element['budget_value'] 
-              this.incomesBudget += parseInt(element['budget_value'])
+              // checking if that movement already exist, if it's true, adding
+              if (value in this.incomesBudgetCat){
+                this.incomesBudgetCat[value] += parseInt(element['budget_value'])
+                this.incomesBudget += parseInt(element['budget_value'])
+              } else {
+                // setting incomes budget data
+                this.incomesBudgetCat[value] = parseInt(element['budget_value'])
+                this.incomesBudget += parseInt(element['budget_value'])
+              } 
             } else if(key == element['mov_catg_id'] && key > 4) {
-              // setting expenses budget data
-              this.expensesBudgetCat[value] = element['budget_value'] 
-              this.expensesBudget += parseInt(element['budget_value'])
+              // checking if that movement already exist, if it's true, adding
+              if (value in this.expensesBudgetCat){
+                this.expensesBudgetCat[value] += parseInt(element['budget_value'])
+                this.expensesBudget += parseInt(element['budget_value'])
+              } else {
+                // setting incomes budget data
+                this.expensesBudgetCat[value] = parseInt(element['budget_value'])
+                this.expensesBudget += parseInt(element['budget_value'])
+              }
             }
           }
         });
@@ -165,38 +190,45 @@ export default {
         this.allMovements.forEach(element => {
           for (const [key, value] of Object.entries(this.allCategories)){
             if (key == element['mov_catg_id'] && key <= 4){
-              // setting incomes budget data
-              this.incomesMovCat[value] = element['mov_value'] 
-              this.incomes += parseInt(element['mov_value'])
+              // checking if that movement already exist, if it's true, adding
+              if (value in this.incomesMovCat){
+                this.incomesMovCat[value] += parseInt(element['mov_value'])
+                this.incomes += parseInt(element['mov_value'])
+              } else {
+                // setting incomes budget data
+                this.incomesMovCat[value] = parseInt(element['mov_value'])
+                this.incomes += parseInt(element['mov_value'])
+              }
             } else if(key == element['mov_catg_id'] && key > 4) {
-              // setting expenses budget data
-              this.expensesMovCat[value] = element['mov_value'] 
-              this.expenses += parseInt(element['mov_value'])
+              // checking if that movement already exist, if it's true, adding
+              if (value in this.expensesMovCat){
+                this.expensesMovCat[value] += parseInt(element['mov_value'])
+                this.expenses += parseInt(element['mov_value'])
+              } else {
+                // setting incomes budget data
+                this.expensesMovCat[value] = parseInt(element['mov_value'])
+                this.expenses += parseInt(element['mov_value'])
+              }
             }
           }
         });
         
         // sorting budget and movements objetcs
-        for (const key of Object.values(this.allCategories)) {
-          if (key in this.incomesBudgetCat){
-            this.incomesBudgetCatSort[key] = this.incomesBudgetCat[key]
-          }
-        }
-        for (const key of Object.values(this.allCategories)) {
-          if (key in this.expensesBudgetCat){
-            this.expensesBudgetCatSort[key] = this.expensesBudgetCat[key]
-          }
-        }
-        for (const key of Object.values(this.allCategories)) {
-          if (key in this.incomesMovCat){
-            this.incomesMovCatSort[key] = this.incomesMovCat[key]
-          }
-        }
-        for (const key of Object.values(this.allCategories)) {
-          if (key in this.expensesMovCat){
-            this.expensesBudgetCatSort[key] = this.expensesMovCat[key]
-          }
-        }
+        const categories = Object.values(this.allCategories);
+        const budgets = [
+          { obj: this.incomesBudgetCat, sorted: this.incomesBudgetCatSort },
+          { obj: this.expensesBudgetCat, sorted: this.expensesBudgetCatSort },
+          { obj: this.incomesMovCat, sorted: this.incomesMovCatSort },
+          { obj: this.expensesMovCat, sorted: this.expensesMovCatSort }
+        ];
+
+        categories.forEach((key) => {
+          budgets.forEach((budget) => {
+            if (key in budget.obj) {
+              budget.sorted[key] = budget.obj[key];
+            }
+          });
+        });
 
         // setting data for bar chart
         this.chartData = {
@@ -205,12 +237,16 @@ export default {
             {
               label: 'Budget',
               backgroundColor: '#87CEFA',
-              data: Object.keys(this.incomesBudgetCatSort).map(cat => this.incomesBudgetCatSort[cat] || 0)
+              borderWidth: 1,
+              borderColor: '#000',
+              data: Object.values(this.incomeCategories).map(cat => this.incomesBudgetCatSort[cat] || 0)
             },
             {
               label: 'Execution',
               backgroundColor: '#000080',
-              data: Object.keys(this.incomesMovCatSort).map(cat => this.incomesMovCatSort[cat] || 0)
+              borderWidth: 1,
+              borderColor: '#000',
+              data: Object.values(this.incomeCategories).map(cat => this.incomesMovCatSort[cat] || 0)
             }
           ]
         };
@@ -232,28 +268,37 @@ export default {
             {
               label: 'Budget',
               backgroundColor: '#87CEFA',
-              data: Object.values(this.incomesBudgetCatSort)
+              borderWidth: 1,
+              borderColor: '#000',
+              data: Object.values(this.incomeCategories).map(cat => this.incomesBudgetCatSort[cat] || 0)
             },
             {
               label: 'Execution',
               backgroundColor: '#000080',
-              data: Object.keys(this.incomesMovCatSort).map(cat => this.incomesMovCatSort[cat] || 0)
+              borderWidth: 1,
+              borderColor: '#000',
+              data: Object.values(this.incomeCategories).map(cat => this.incomesMovCatSort[cat] || 0)
             }
           ]
         };
       } else if (type === 'expenses') {
+        //this.chartOptions['indexAxis'] = 'y';
         data = {
           labels: Object.values(this.expenseCategories),
           datasets: [
             {
               label: 'Budget',
               backgroundColor: '#FFECB3',
-              data: Object.values(this.expensesBudgetCatSort)
+              borderWidth: 1,
+              borderColor: '#000',
+              data: Object.values(this.expenseCategories).map(cat => this.expensesBudgetCatSort[cat] || 0)
             },
             {
               label: 'Execution',
               backgroundColor: '#885407',
-              data: Object.keys(this.expensesBudgetCatSort).map(cat => this.expensesMovCatSort[cat] || 0)
+              borderWidth: 1,
+              borderColor: '#000',
+              data: Object.values(this.expenseCategories).map(cat => this.expensesMovCatSort[cat] || 0)
             }
           ]
         };
@@ -345,10 +390,13 @@ export default {
 }
 
 .chart-container {
-  padding: 40px;
-  height: 50vh; 
-  max-width: 800px; /* or any other value */
-  margin: 0 auto; /* center the chart */
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 30px;
+  height: 50vh;
+  min-width: 300px; 
+  max-width: 600px;
+  margin: 0 auto; 
 }
 
 </style>

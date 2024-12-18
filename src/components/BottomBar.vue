@@ -18,8 +18,8 @@
       return {
         items: [
           { name: 'Budget', route: 'BudgetNew'},
-          { name: 'Movements', route: 'Home'},
-          { name: 'Outcomes', route: 'Home'}
+          { name: 'Movements', route: 'MovementNew'},
+          { name: 'Details', route: 'MovDetails'}
         ],
         activeItem: 'Nearby'
       };

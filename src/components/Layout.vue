@@ -43,21 +43,27 @@
         }
         // console.log(`panel: ${panel} is extended?: ${expanded}`)
         // setting visibility of BottomBarNavigation
-        if (this.incomePanelExpanded==true || this.expensePanelExpanded==true){
+        if (this.$route.name === 'Home'){
+          this.showBottomBar = true
+        }else if (this.incomePanelExpanded==true || this.expensePanelExpanded==true){
           this.showBottomBar = false  
         } else if (this.incomePanelExpanded==false && this.expensePanelExpanded==false) {
           this.showBottomBar = true
-        } 
+        }
       }
     },
     watch: {
-    $route(to, from) {
-      // Update the bottom bar visibility when the route changes
-      this.showBottomBar = this.$route.name !== 'Login' && this.$route.name !== 'SignUp' && !this.incomePanelExpanded && !this.expensePanelExpanded;
+      $route(to, from) {
+        // Update the bottom bar visibility when the route changes
+        if (this.$route.name == 'Login' || this.$route.name == 'SignUp'){
+          this.showBottomBar = false  
+        } else if (this.$route.name == 'Home') {
+          this.showBottomBar = true
+        }
       },
       incomePanelExpanded(val) {
-      // Update the bottom bar visibility when income panel expands or collapses
-      this.showBottomBar = this.$route.name !== 'Login' && this.$route.name !== 'SignUp' && !val && !this.expensePanelExpanded;
+        // Update the bottom bar visibility when income panel expands or collapses
+        this.showBottomBar = this.$route.name !== 'Login' && this.$route.name !== 'SignUp' && !val && !this.expensePanelExpanded;
       },
       expensePanelExpanded(val) {
         // Update the bottom bar visibility when expense panel expands or collapses

@@ -3,6 +3,8 @@ import Login from '../components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
 import HomeView from '@/components/HomeMain.vue';
 import BudgetCreate from '@/components/BudgetCreate.vue';
+import MovCreate from '@/components/MovCreate.vue';
+import MovDetails from '@/components/MovDetails.vue';
 
 /* eslint-disable */
 const routes = [
@@ -27,6 +29,18 @@ const routes = [
     name: 'BudgetNew',
     component: BudgetCreate,
     meta: {title: 'Create your Budget'}
+  },
+  {
+    path: '/movementNew',
+    name: 'MovementNew',
+    component: MovCreate,
+    meta: {title: 'Create your Movements'}
+  },
+  {
+    path: '/movDetails',
+    name: 'MovDetails',
+    component: MovDetails,
+    meta: {title: 'Movement Details'}
   }
 ];
 

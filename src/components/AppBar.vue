@@ -29,11 +29,25 @@ export default {
   },
   data(){
     return {
-      menuVisible: false
+      menuVisible: false,
+      panels: {
+        incomes: false,
+        expenses: false
+      }
     };
   },
   methods: {
+    togglePanel(panel) {
+      this.panels[panel] = !this.panels[panel];
+      this.$emit('panel-toggle', { panel, expanded: this.panels[panel] });
+    },
     goToHome() {
+      // when user click home buton and the panel is extended, we close both panels to show buttomBar
+      this.panels['incomes'] = true
+      this.panels['expenses'] = true
+      this.togglePanel('incomes');
+      this.togglePanel('expenses');
+      
       this.$router.push({ name: 'Home' });
     },
     toggleMenu() {

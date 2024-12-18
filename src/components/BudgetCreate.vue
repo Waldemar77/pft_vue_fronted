@@ -108,7 +108,7 @@ export default {
       months: {
         1:'January', 2:'February', 3:'March', 4:'April', 5:'May', 6:'June',
         7:'July', 8:'August', 9:'September', 10:'October', 11:'November', 12:'December'
-    },
+      },
       selectedYear: '',
       selectedMonth: '',
       panels: {
@@ -211,6 +211,12 @@ export default {
       return budgets.reduce((total, budget) => total + parseInt(budget.value), 0);
     },
     async saveBudget(){
+      // when user saves and the panel is extended, we close both panels to show buttomBar
+      this.panels['incomes'] = true
+      this.panels['expenses'] = true
+      this.togglePanel('incomes');
+      this.togglePanel('expenses');
+      
       // setting period (yyyy-MM)
       for (const [key, value] of Object.entries(this.months)) {
         if (value === this.selectedMonth){
@@ -265,7 +271,7 @@ export default {
         const response = await axios.post('http://127.0.0.1:8000/budget/saving_budget/', this.json_to_save)
         
         // getting response confirmation
-        console.log(JSON.stringify(response.data))
+        //console.log(JSON.stringify(response.data))
         // Handle successful sign-up, e.g., save token, redirect, etc.
         if (response.data.slice(0, 3) == '[1]') {
             this.successMessage = `Your budget for period ${this.period_budget} has been saved successfully`;
@@ -334,7 +340,7 @@ export default {
   padding-top: 1px;
   padding-bottom: 1px;
   height: auto;
-  color: rgb(255, 255, 255);
+  color: white;
   background-color: rgb(15, 9, 68);
   cursor: pointer;
   text-align: left;
@@ -378,7 +384,7 @@ export default {
 .form button {
   padding: 5px 10px;
   background-color: #95ff3e;
-  color: #030303;
+  color: black;
   border: none;
   cursor: pointer;
 }
