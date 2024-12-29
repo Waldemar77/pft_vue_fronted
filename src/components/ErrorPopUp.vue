@@ -1,56 +1,57 @@
 <template>
-    <div v-if="visible" class="popup">
-      <div class="popup-content">
-        <span class="close" @click="closePopup">&times;</span>
-        <p>{{ message }}</p>
-      </div>
+  <div v-if="visible" class="popup">
+    <div class="popup-content">
+      <span class="close" @click="closePopup">&times;</span>
+      <p>{{ message }}</p>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    props: {
-      visible: {
-        type: Boolean,
-        required: true
-      },
-      message: {
-        type: String,
-        required: true
-      }
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    visible: {
+      type: Boolean,
+      required: true
     },
-    methods: {
-      closePopup() {
-        this.$emit('close');
-      }
+    message: {
+      type: String,
+      required: true
     }
-  };
-  </script>
-  
-  <style>
-  .popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(249, 211, 211, 0.806);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  },
+  methods: {
+    closePopup() {
+      this.$emit('close');
+    }
   }
-  .popup-content {
-    background-color: rgb(231, 228, 228);
-    padding: 20px;
-    border-radius: 5px;
-    position: relative;
-    color: black;
-  }
-  .close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    cursor: pointer;
-  }
-  </style>
-  
+};
+</script>
+
+<style>
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(249, 211, 211, 0.806);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background-color: rgb(231, 228, 228);
+  padding: 20px;
+  border-radius: 5px;
+  position: relative;
+  color: black;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+</style>

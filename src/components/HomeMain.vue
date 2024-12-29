@@ -1,6 +1,6 @@
 <template>
   <div class="home-view">
-    
+
     <div class="content">
       <div class="current-period">
         Current Period: {{ currentPeriod }}
@@ -29,7 +29,7 @@
         <ChartBars :data="chartData" :options="chartOptions" />
       </div>
 
-    </div>    
+    </div>
   </div>
 </template>
 
@@ -50,8 +50,8 @@ export default {
       periodYear: '',
       numberMonth: '',
       nameMonth: {
-        '01':'January', '02':'February', '03':'March', '04':'April', '05':'May', '06':'June',
-        '07':'July', '08':'August', '09':'September', '10':'October', '11':'November', '12':'December'
+        '01': 'January', '02': 'February', '03': 'March', '04': 'April', '05': 'May', '06': 'June',
+        '07': 'July', '08': 'August', '09': 'September', '10': 'October', '11': 'November', '12': 'December'
       },
       allBudget: [],
       incomesBudgetCat: {},
@@ -62,15 +62,15 @@ export default {
       incomesMovCatSort: {},
       expensesBudgetCatSort: {},
       expensesMovCatSort: {},
-      incomeCategories: {1:'Salary', 2:'Rent', 3:'Investment', 4:'Other'},
+      incomeCategories: { 1: 'Salary', 2: 'Rent', 3: 'Investment', 4: 'Other' },
       expenseCategories: {
-        7:'Rent', 8:'Alimentation', 9:'Health', 10:'Services', 11:'Transportation', 12:'Education', 13:'Pets', 14:'Entertainment', 15:'Other', 16:'Loan Payments'
+        7: 'Rent', 8: 'Alimentation', 9: 'Health', 10: 'Services', 11: 'Transportation', 12: 'Education', 13: 'Pets', 14: 'Entertainment', 15: 'Other', 16: 'Loan Payments'
       },
       allCategories: {
-        1:'Salary', 2:'Rent', 3:'Investment', 4:'Other', 7:'Rent', 8:'Alimentation', 9:'Health', 10:'Services', 11:'Transportation', 12:'Education', 13:'Pets', 14:'Entertainment', 15:'Other', 16:'Loan Payments'
+        1: 'Salary', 2: 'Rent', 3: 'Investment', 4: 'Other', 7: 'Rent', 8: 'Alimentation', 9: 'Health', 10: 'Services', 11: 'Transportation', 12: 'Education', 13: 'Pets', 14: 'Entertainment', 15: 'Other', 16: 'Loan Payments'
       },
       incomes: 0,
-      incomesBudget: 0, 
+      incomesBudget: 0,
       expenses: 0,
       expensesBudget: 0,
       markUp: 0,
@@ -91,10 +91,10 @@ export default {
   computed: {
     incomesFillStyle() {
       const percentage = (this.incomes / this.incomesBudget) * 100;
-      if (percentage >= 100){
+      if (percentage >= 100) {
         return {
           width: '100%',
-          backgroundColor: '#95ff3e' 
+          backgroundColor: '#95ff3e'
         };
       } else {
         return {
@@ -104,10 +104,10 @@ export default {
     },
     expensesFillStyle() {
       const percentage = (this.expenses / this.expensesBudget) * 100;
-      if (percentage >= 100){
+      if (percentage >= 100) {
         return {
           width: '100%',
-          backgroundColor: '#f56464' 
+          backgroundColor: '#f56464'
         };
       } else {
         return {
@@ -124,15 +124,15 @@ export default {
     async getActivePeriod() {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/budget/all_period_open_user/${this.id_user}`)
-        
+
         this.budgetPeriod = response.data[0]['budget_period']
 
         // mapping name month:
-        this.periodYear = JSON.stringify(response.data[0]['budget_period']).slice(1,5)
-        this.numberMonth = JSON.stringify(response.data[0]['budget_period']).slice(-3,-1)
+        this.periodYear = JSON.stringify(response.data[0]['budget_period']).slice(1, 5)
+        this.numberMonth = JSON.stringify(response.data[0]['budget_period']).slice(-3, -1)
         //console.log(`periodYear: ${this.periodYear} and numberMonth ${this.numberMonth}`)
         for (const [key, value] of Object.entries(this.nameMonth)) {
-          if (key === this.numberMonth){
+          if (key === this.numberMonth) {
             this.currentPeriod = this.periodYear + ' - ' + value
           }
         }
@@ -142,7 +142,7 @@ export default {
 
         // getting budget movements
         this.getBudgetAndMov(this.budgetPeriod)
-      } catch(error){
+      } catch (error) {
         console.error(error);
       }
     },
@@ -154,22 +154,22 @@ export default {
         const response = await axios.get(`http://127.0.0.1:8000/budget/budget_user_period/${this.id_user}/${periodBudget}`)
 
         this.allBudget = response.data;
-        
+
         this.allBudget.forEach(element => {
-          for (const [key, value] of Object.entries(this.allCategories)){
-            if (key == element['mov_catg_id'] && key <= 4){
+          for (const [key, value] of Object.entries(this.allCategories)) {
+            if (key == element['mov_catg_id'] && key <= 4) {
               // checking if that movement already exist, if it's true, adding
-              if (value in this.incomesBudgetCat){
+              if (value in this.incomesBudgetCat) {
                 this.incomesBudgetCat[value] += parseInt(element['budget_value'])
                 this.incomesBudget += parseInt(element['budget_value'])
               } else {
                 // setting incomes budget data
                 this.incomesBudgetCat[value] = parseInt(element['budget_value'])
                 this.incomesBudget += parseInt(element['budget_value'])
-              } 
-            } else if(key == element['mov_catg_id'] && key > 4) {
+              }
+            } else if (key == element['mov_catg_id'] && key > 4) {
               // checking if that movement already exist, if it's true, adding
-              if (value in this.expensesBudgetCat){
+              if (value in this.expensesBudgetCat) {
                 this.expensesBudgetCat[value] += parseInt(element['budget_value'])
                 this.expensesBudget += parseInt(element['budget_value'])
               } else {
@@ -185,13 +185,13 @@ export default {
         const response_mov = await axios.get(`http://127.0.0.1:8000/mov/mov_user_period/${this.id_user}/${periodBudget}`)
 
         this.allMovements = response_mov.data;
-        
+
         // setting incomes movement data
         this.allMovements.forEach(element => {
-          for (const [key, value] of Object.entries(this.allCategories)){
-            if (key == element['mov_catg_id'] && key <= 4){
+          for (const [key, value] of Object.entries(this.allCategories)) {
+            if (key == element['mov_catg_id'] && key <= 4) {
               // checking if that movement already exist, if it's true, adding
-              if (value in this.incomesMovCat){
+              if (value in this.incomesMovCat) {
                 this.incomesMovCat[value] += parseInt(element['mov_value'])
                 this.incomes += parseInt(element['mov_value'])
               } else {
@@ -199,9 +199,9 @@ export default {
                 this.incomesMovCat[value] = parseInt(element['mov_value'])
                 this.incomes += parseInt(element['mov_value'])
               }
-            } else if(key == element['mov_catg_id'] && key > 4) {
+            } else if (key == element['mov_catg_id'] && key > 4) {
               // checking if that movement already exist, if it's true, adding
-              if (value in this.expensesMovCat){
+              if (value in this.expensesMovCat) {
                 this.expensesMovCat[value] += parseInt(element['mov_value'])
                 this.expenses += parseInt(element['mov_value'])
               } else {
@@ -212,7 +212,7 @@ export default {
             }
           }
         });
-        
+
         // sorting budget and movements objetcs
         const categories = Object.values(this.allCategories);
         const budgets = [
@@ -250,8 +250,8 @@ export default {
             }
           ]
         };
-        
-      } catch(error){
+
+      } catch (error) {
         console.error(error);
       }
     },
@@ -394,9 +394,8 @@ export default {
   padding-right: 10px;
   padding-top: 30px;
   height: 50vh;
-  min-width: 300px; 
+  min-width: 300px;
   max-width: 600px;
-  margin: 0 auto; 
+  margin: 0 auto;
 }
-
 </style>

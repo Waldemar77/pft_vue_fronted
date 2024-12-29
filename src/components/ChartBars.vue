@@ -36,17 +36,17 @@ export default {
   },
   methods: {
     renderChart() {
-    if (!this.chart) {
-      this.chart = new Chart(this.$refs.canvas, {
-        type: 'bar',
-        data: this.data,
-        options: this.options
-      });
-    } else {
-      this.chart.data = this.data;
-      this.chart.update();
+      if (!this.chart) {
+        this.chart = new Chart(this.$refs.canvas, {
+          type: 'bar',
+          data: this.data,
+          options: this.options
+        });
+      } else {
+        this.chart.data = this.data;
+        this.chart.update();
+      }
     }
-  }
   }
 };
 </script>

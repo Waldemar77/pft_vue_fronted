@@ -27,7 +27,7 @@ export default {
       required: false
     }
   },
-  data(){
+  data() {
     return {
       menuVisible: false,
       panels: {
@@ -47,7 +47,7 @@ export default {
       this.panels['expenses'] = true
       this.togglePanel('incomes');
       this.togglePanel('expenses');
-      
+
       this.$router.push({ name: 'Home' });
     },
     toggleMenu() {
