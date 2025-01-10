@@ -1,23 +1,32 @@
 <template>
     <div class="movements-view">
-        <h2>Movements Detail</h2>
+        <h3>Select year, month and type of movement:</h3>
 
         <!-- Combobox for Active Period -->
-        <div class="selectors">
-            <label>Active Period:</label>
-            <select id="period" v-model="selectedPeriod">
-                <option v-for="period in activePeriods" :key="period" :value="period">{{ period }}</option>
+        <div class="current-period">
+            <label class="label" for="year">Year:</label>
+            <select class="selection" id="year" v-model="selectedYear">
+                <option v-for="year in uniqueYears" :key="year" :value="year">{{ year }}</option>
             </select>
-            <label>Type:</label>
-            <select id="type" v-model="selectedType">
+
+            <label class="label" for="month">Month:</label>
+            <select class="selection" id="month" v-model="selectedMonth">
+                <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
+            </select>
+
+            <label class="label">Type:</label>
+            <select class="selection" id="type" v-model="selectedType">
                 <option v-for="type in mainCategory" :key="type" :value="type">{{ type }}</option>
             </select>
+
+            <button class="button-show" @click="fetchMovements">Show</button>
         </div>
 
         <table>
             <thead>
                 <tr>
                     <th>Date</th>
+                    <th>Main Category</th>
                     <th>Category</th>
                     <th>Description</th>
                     <th>Amount</th>
@@ -27,6 +36,7 @@
             <tbody>
                 <tr v-for="movement in filteredMovements" :key="movement.id">
                     <td>{{ movement.mov_date }}</td>
+                    <td>{{ movement.mainCategory }}</td>
                     <td>{{ movement.category }}</td>
                     <td>{{ movement.mov_description }}</td>
                     <td>{{ movement.mov_value }}</td>
@@ -42,6 +52,7 @@
 
 <script>
 /* eslint-disable */
+import axios from 'axios';
 export default {
     data() {
         return {
@@ -51,6 +62,23 @@ export default {
             expenseMovements: [],
             activePeriod: { period: '' },
             selectedPeriod: '',
+            budgetPeriod: '',
+            periodYear: [],
+            periodMonths: [],
+            numberMonth: '',
+            uniqueYears: '',
+            allBudgetPeriods: [],
+            currentPeriod: '',
+            selectedMonth: '',
+            selectedYear: '',
+            nameMonth: {
+                '01': 'January', '02': 'February', '03': 'March', '04': 'April', '05': 'May', '06': 'June',
+                '07': 'July', '08': 'August', '09': 'September', '10': 'October', '11': 'November', '12': 'December'
+            },
+            months: {
+                1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June',
+                7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'
+            },
             mainCategory: ['All', 'Incomes', 'Expenses'],
             selectedType: '',
             incomeCategories: { 1: 'Salary', 2: 'Rent', 3: 'Investment', 4: 'Other' },
@@ -87,9 +115,51 @@ export default {
             this.activePeriod['period'] = sessionStorage.getItem('activePeriod');
             return this.activePeriod
         },
+
+        // getting the last active period in the database
+        async getActivePeriod() {
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/budget/all_period_user/${this.user_id_SS}`)
+
+                this.budgetPeriod = response.data;
+
+                var allPeriods = []
+                this.budgetPeriod.forEach(element => {
+                    // save periods with format yyyy-MM
+                    allPeriods.push(element['budget_period'])
+
+                    // mapping name month:
+                    this.periodYear.push(JSON.stringify(element['budget_period']).slice(1, 5))
+                    this.numberMonth = JSON.stringify(element['budget_period']).slice(-3, -1)
+
+                    for (const [key, value] of Object.entries(this.nameMonth)) {
+                        if (key === this.numberMonth) {
+                            this.periodMonths.push(value)
+                            this.allBudgetPeriods.push(this.periodYear + ' - ' + value);
+                        }
+                    }
+                })
+
+                // converting array[] to set() to drop duplicates years
+                this.uniqueYears = [...new Set(this.periodYear)];
+
+                // getting budget movements
+                this.currentPeriod = allPeriods[0]
+            } catch (error) {
+                console.error(error);
+            }
+        },
         async fetchMovements() {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/mov/mov_user_period/${this.user_id_SS}/${this.selectedPeriod}`);
+                // mapping month name for get month number
+                var periodToSearch = ''
+                for (const [key, value] of Object.entries(this.nameMonth)) {
+                    if (value == this.selectedMonth) {
+                        periodToSearch = this.selectedYear + '-' + key
+                    }
+                }
+
+                const response = await axios.get(`http://127.0.0.1:8000/mov/mov_user_period/${this.user_id_SS}/${periodToSearch}`);
                 this.movements = response.data;
 
                 // categorize incomes and expenses in differents objects
@@ -97,13 +167,17 @@ export default {
                     for (const [key, value] of Object.entries(this.allCategories)) {
                         if (key == element['mov_catg_id'] && key <= 4) {
                             this.incomeMovements.push(element)
+                            this.incomeMovements['mainCategory'] = 'Incomes'
                             this.incomeMovements['category'] = value
                         } else {
                             this.expenseMovements.push(element)
+                            this.expenseMovements['mainCategory'] = 'Expenses'
                             this.expenseMovements['category'] = value
                         }
                     }
                 });
+
+                console.log(`incomes `)
 
             } catch (error) {
                 console.error('Error fetching movements:', error);
@@ -124,7 +198,7 @@ export default {
     },
     mounted() {
         this.activePeriods();
-        this.fetchMovements();
+        this.getActivePeriod();
     }
 };
 </script>
@@ -132,6 +206,29 @@ export default {
 <style scoped>
 .movements-view {
     padding: 20px;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    text-align: center;
+}
+
+.current-period {
+    padding: 5px;
+    margin-bottom: 20px;
+}
+
+.label {
+    margin-right: 5px;
+}
+
+.selection {
+    margin-right: 10px;
+}
+
+.button-show {
+    background-color: rgb(28, 221, 235);
 }
 
 .selectors {

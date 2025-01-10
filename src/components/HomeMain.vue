@@ -3,7 +3,17 @@
 
     <div class="content">
       <div class="current-period">
-        Current Period: {{ currentPeriod }}
+        <label class="label" for="year">Year:</label>
+        <select class="selection" id="year" v-model="selectedYear">
+          <option v-for="year in uniqueYears" :key="year" :value="year">{{ year }}</option>
+        </select>
+
+        <label class="label" for="month">Month:</label>
+        <select class="selection" id="month" v-model="selectedMonth">
+          <option v-for="month in months" :key="month" :value="month">{{ month }}</option>
+        </select>
+
+        <button class="button-show" @click="getBudgetAndMov">Show</button>
       </div>
 
       <div class="budget-section">
@@ -45,9 +55,18 @@ export default {
   data() {
     return {
       id_user: sessionStorage.getItem('user_id'),
+      allBudgetPeriods: [],
       budgetPeriod: '',
       currentPeriod: '',
-      periodYear: '',
+      selectedMonth: '',
+      selectedYear: '',
+      months: {
+        1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June',
+        7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'
+      },
+      uniqueYears: '',
+      periodYear: [],
+      periodMonths: [],
       numberMonth: '',
       nameMonth: {
         '01': 'January', '02': 'February', '03': 'March', '04': 'April', '05': 'May', '06': 'June',
@@ -123,35 +142,69 @@ export default {
     // getting the last active period in the database
     async getActivePeriod() {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/budget/all_period_open_user/${this.id_user}`)
+        const response = await axios.get(`http://127.0.0.1:8000/budget/all_period_user/${this.id_user}`)
 
-        this.budgetPeriod = response.data[0]['budget_period']
+        this.budgetPeriod = response.data;
 
-        // mapping name month:
-        this.periodYear = JSON.stringify(response.data[0]['budget_period']).slice(1, 5)
-        this.numberMonth = JSON.stringify(response.data[0]['budget_period']).slice(-3, -1)
-        //console.log(`periodYear: ${this.periodYear} and numberMonth ${this.numberMonth}`)
-        for (const [key, value] of Object.entries(this.nameMonth)) {
-          if (key === this.numberMonth) {
-            this.currentPeriod = this.periodYear + ' - ' + value
+        var allPeriods = []
+        this.budgetPeriod.forEach(element => {
+          // save periods with format yyyy-MM
+          allPeriods.push(element['budget_period'])
+
+          // mapping name month:
+          this.periodYear.push(JSON.stringify(element['budget_period']).slice(1, 5))
+          this.numberMonth = JSON.stringify(element['budget_period']).slice(-3, -1)
+
+          for (const [key, value] of Object.entries(this.nameMonth)) {
+            if (key === this.numberMonth) {
+              this.periodMonths.push(value)
+              this.allBudgetPeriods.push(this.periodYear + ' - ' + value);
+            }
           }
-        }
-        //console.log(`currentPeriod: ${this.currentPeriod}`)
+        })
+
+        // converting array[] to set() to drop duplicates years
+        this.uniqueYears = [...new Set(this.periodYear)];
+
         //saving current period in SessionStorage
-        sessionStorage.setItem('activePeriod', this.currentPeriod)
+        sessionStorage.setItem('allBudgetPeriods', this.allBudgetPeriods)
 
         // getting budget movements
-        this.getBudgetAndMov(this.budgetPeriod)
+        this.currentPeriod = allPeriods[0]
       } catch (error) {
         console.error(error);
       }
     },
 
     // getting budget and movements for the current period
-    async getBudgetAndMov(periodBudget) {
+    async getBudgetAndMov() {
       try {
+        // restart values for budget and movements
+        this.incomes = 0
+        this.incomesBudget = 0
+        this.expenses = 0
+        this.expensesBudget = 0
+        this.markUp = 0
+        this.incomesBudgetCat = {}
+        this.expensesBudgetCat = {}
+        this.incomesMovCat = {}
+        this.expensesMovCat = {}
+        this.incomesBudgetCatSort = {}
+        this.incomesMovCatSort = {}
+        this.expensesBudgetCatSort = {}
+        this.expensesMovCatSort = {}
+
+
+        // mapping month name for get month number
+        var periodToSearch = ''
+        for (const [key, value] of Object.entries(this.nameMonth)) {
+          if (value == this.selectedMonth) {
+            periodToSearch = this.selectedYear + '-' + key
+          }
+        }
+
         // getting budget data
-        const response = await axios.get(`http://127.0.0.1:8000/budget/budget_user_period/${this.id_user}/${periodBudget}`)
+        const response = await axios.get(`http://127.0.0.1:8000/budget/budget_user_period/${this.id_user}/${periodToSearch}`)
 
         this.allBudget = response.data;
 
@@ -182,7 +235,7 @@ export default {
         });
 
         // getting movements data
-        const response_mov = await axios.get(`http://127.0.0.1:8000/mov/mov_user_period/${this.id_user}/${periodBudget}`)
+        const response_mov = await axios.get(`http://127.0.0.1:8000/mov/mov_user_period/${this.id_user}/${periodToSearch}`)
 
         this.allMovements = response_mov.data;
 
@@ -340,7 +393,20 @@ export default {
 }
 
 .current-period {
+  padding: 5px;
   margin-bottom: 20px;
+}
+
+.label {
+  margin-right: 5px;
+}
+
+.selection {
+  margin-right: 10px;
+}
+
+.button-show {
+  background-color: rgb(28, 221, 235);
 }
 
 .budget-section {
