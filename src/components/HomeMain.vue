@@ -57,7 +57,7 @@ export default {
       id_user: sessionStorage.getItem('user_id'),
       allBudgetPeriods: [],
       budgetPeriod: '',
-      currentPeriod: '',
+      lastPeriod: '',
       selectedMonth: '',
       selectedYear: '',
       months: {
@@ -166,11 +166,14 @@ export default {
         // converting array[] to set() to drop duplicates years
         this.uniqueYears = [...new Set(this.periodYear)];
 
-        //saving current period in SessionStorage
-        sessionStorage.setItem('allBudgetPeriods', this.allBudgetPeriods)
-
         // getting budget movements
-        this.currentPeriod = allPeriods[0]
+        this.lastPeriod = this.allBudgetPeriods[0]
+
+        //saving current period in SessionStorage
+        sessionStorage.setItem('allBgPeriods', allPeriods)
+        sessionStorage.setItem('allBgPeriodsName', this.allBudgetPeriods)
+        sessionStorage.setItem('lastPeriod', this.lastPeriod)
+
       } catch (error) {
         console.error(error);
       }

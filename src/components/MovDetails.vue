@@ -60,6 +60,7 @@ export default {
             movements: [],
             incomeMovements: [],
             expenseMovements: [],
+            filteredMove: [],
             activePeriod: { period: '' },
             selectedPeriod: '',
             budgetPeriod: '',
@@ -151,6 +152,10 @@ export default {
         },
         async fetchMovements() {
             try {
+                // cleaning arrays with movements
+                this.incomeMovements = []
+                this.expenseMovements = []
+
                 // mapping month name for get month number
                 var periodToSearch = ''
                 for (const [key, value] of Object.entries(this.nameMonth)) {
@@ -166,18 +171,20 @@ export default {
                 this.movements.forEach(element => {
                     for (const [key, value] of Object.entries(this.allCategories)) {
                         if (key == element['mov_catg_id'] && key <= 4) {
+                            element['mainCategory'] = 'Incomes'
+                            element['category'] = value
                             this.incomeMovements.push(element)
-                            this.incomeMovements['mainCategory'] = 'Incomes'
-                            this.incomeMovements['category'] = value
-                        } else {
+                        } else if (key == element['mov_catg_id'] && key > 4) {
+                            element['mainCategory'] = 'Expenses'
+                            element['category'] = value
                             this.expenseMovements.push(element)
-                            this.expenseMovements['mainCategory'] = 'Expenses'
-                            this.expenseMovements['category'] = value
                         }
                     }
                 });
 
-                console.log(`incomes `)
+                //console.log(`incomes ${JSON.stringify(this.incomeMovements)}`)
+                //console.log(`expenses ${JSON.stringify(this.expenseMovements)}`)
+                console.log(`all movements ${JSON.stringify(this.movements)}`)
 
             } catch (error) {
                 console.error('Error fetching movements:', error);

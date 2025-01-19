@@ -90,7 +90,7 @@ export default {
   name: 'MovementNew',
   data() {
     return {
-      activePeriod: { period: '' },
+      lastPeriod: { period: '' },
       selectedPeriod: '',
       months: {
         1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June',
@@ -154,8 +154,8 @@ export default {
       return this.calculateTotal(this.expenses);
     },
     activePeriods() {
-      this.activePeriod['period'] = sessionStorage.getItem('activePeriod');
-      return this.activePeriod
+      this.lastPeriod['period'] = sessionStorage.getItem('lastPeriod');
+      return this.lastPeriod
     }
   },
   methods: {
